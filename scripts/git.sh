@@ -38,9 +38,11 @@ prompt_value() {
 
   if [[ -t 0 ]]; then
     read -rp "$prompt" value || true
-  elif [[ -r /dev/tty ]]; then
+  elif { exec 3</dev/tty; } 2>/dev/null; then
     # Support `curl -fsSL ... | bash`, where stdin is the pipe, not a terminal.
-    read -rp "$prompt" value </dev/tty || true
+    # Only taken when /dev/tty can actually be opened (a real controlling tty).
+    read -rp "$prompt" value <&3 || true
+    exec 3<&-
   fi
 
   printf '%s' "$value"

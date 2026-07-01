@@ -30,6 +30,7 @@ require_cmd() {
 TMP_DIR=""
 cleanup() {
   [[ -n "$TMP_DIR" && -d "$TMP_DIR" ]] && rm -rf "$TMP_DIR"
+  return 0
 }
 trap cleanup EXIT
 
