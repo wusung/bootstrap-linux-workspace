@@ -14,14 +14,22 @@
 
 ## Git 設定來源
 
-`config/git.conf` 是 bootstrap 流程使用的 `key=value` 設定來源，不是 Git 原生使用的 INI 格式設定檔。
+`config/git.conf` 是 bootstrap 流程使用的 `key=value` 設定來源，不是 Git 原生使用的 INI 格式設定檔。此檔只放**通用且非機器特定**的設定與別名，不含任何個人身份或主機專屬值。
 
-執行安裝前應先編輯個人身份資料，至少確認：
+個人與機器特定的設定不寫死在檔案內，改由 `scripts/git.sh` 於安裝時解析——優先讀環境變數，否則在終端機互動輸入：
 
-- `user.name`
-- `user.email`
+| 設定 | 環境變數 | 說明 |
+|------|----------|------|
+| `user.name` | `GIT_USER_NAME` | 必填 |
+| `user.email` | `GIT_USER_EMAIL` | 必填 |
+| `user.signingkey` | `GIT_SIGNING_KEY` | 選填；有值才啟用 `commit.gpgsign` / `tag.gpgsign`，留空則關閉簽章 |
+| GitHub 憑證輔助 | （自動偵測 `gh`）| 以 `gh auth setup-git` 設定，不寫死 `gh` 絕對路徑 |
 
-其中 `user.email` 目前是 placeholder，使用前必須改成自己的信箱。
+非互動（管線）情境範例：
+
+```bash
+GIT_USER_NAME="Wusung Peng" GIT_USER_EMAIL="you@example.com" bash scripts/git.sh
+```
 
 ## Requirements
 
