@@ -2,13 +2,13 @@
 
 ## 專案用途
 
-此專案用來作為 Linux 工作環境 bootstrap repo，目標是在使用者執行一行安裝指令後，自動套用 Git 設定、安裝 `tmux-compass`、安裝 `tpm`，並設定 tmux session 持久化與開機自動回復。
+此專案用來作為 Linux 工作環境 bootstrap repo，目標是在使用者執行一行安裝指令後，自動套用 Git 設定、安裝 `wusung/tmux-compass`、`sainnhe/tmux-fzf`、`MaxGhenis/tmux-claude-code`、安裝 `tpm`，並設定 tmux session 持久化與開機自動回復。
 
 ## Scope
 
 - 提供 Linux 專用的 bootstrap 流程
 - 套用來自 `config/git.conf` 的 Git 設定
-- 安裝 `tmux-compass`
+- 安裝 `wusung/tmux-compass`、`sainnhe/tmux-fzf`、`MaxGhenis/tmux-claude-code`
 - 安裝 `tpm`
 - 安裝 `tmux-resurrect`、`tmux-continuum`，並以 systemd user service 設定開機後自動回復 tmux session
 - 供遠端 `install.sh` 下載並執行
@@ -77,7 +77,7 @@ bash install.sh
    | 順序 | 模組 | 作用 | 目標位置 |
    |------|------|------|----------|
    | 1 | `scripts/git.sh` | 套用 `config/git.conf` 全域設定與別名；解析身份／簽章／憑證（見「Git 設定來源」一節） | `~/.gitconfig` |
-   | 2 | `scripts/tmux.sh` | clone 或更新 `tmux-compass` | `~/.config/tmux/plugins/tmux-compass` |
+   | 2 | `scripts/tmux.sh` | clone 或更新 `wusung/tmux-compass`、`sainnhe/tmux-fzf`、`MaxGhenis/tmux-claude-code` | `~/.config/tmux/plugins/tmux-compass`、`~/.config/tmux/plugins/tmux-fzf`、`~/.config/tmux/plugins/tmux-claude-code` |
    | 3 | `scripts/vim.sh` | 相容包裝，轉呼 `scripts/tpm.sh`；clone 或更新 TPM | `~/.tmux/plugins/tpm` |
    | 4 | `scripts/tmux-persistence.sh` | clone 或更新 `tmux-resurrect`／`tmux-continuum`；注入 tmux.conf managed block；寫入並啟用 systemd user service | `~/.tmux/plugins/tmux-resurrect`、`~/.tmux/plugins/tmux-continuum`、`~/.config/systemd/user/tmux.service` |
 
