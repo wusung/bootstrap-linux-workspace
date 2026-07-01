@@ -35,8 +35,10 @@ GIT_USER_NAME="Wusung Peng" GIT_USER_EMAIL="you@example.com" bash scripts/git.sh
 
 - Linux 環境
 - `bash`
+- `git`
 - `curl`
 - 可連線至 GitHub
+- `gh`（選用；存在時用於設定 GitHub 憑證輔助）
 
 ## One-Line Install
 
@@ -44,10 +46,35 @@ GIT_USER_NAME="Wusung Peng" GIT_USER_EMAIL="you@example.com" bash scripts/git.sh
 curl -fsSL https://raw.githubusercontent.com/wusung/bootstrap-linux-workspace/main/install.sh | bash
 ```
 
+安裝過程需要 `user.name` / `user.email`。以 `curl | bash` 執行時，`scripts/git.sh` 會透過 `/dev/tty` 互動詢問；若無控制終端（CI／管線），改用環境變數預先提供：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/wusung/bootstrap-linux-workspace/main/install.sh \
+  | GIT_USER_NAME="Wusung Peng" GIT_USER_EMAIL="you@example.com" bash
+```
+
 ## Local Run
 
-若要在本機直接執行 bootstrap 腳本，可使用：
+若已 clone 本 repo，可直接在本機執行：
 
 ```bash
 bash install.sh
 ```
+
+## 安裝流程
+
+`install.sh` 是唯一進入點，自帶 `log`／`die`／`require_cmd`，不依賴 `scripts/common.sh`。流程如下：
+
+1. 檢查必要命令（`git`、`curl`），任一缺失即中止。
+2. 解析 repo 來源，二選一：
+   - **本地模式**：從 checkout 執行時，就地使用當前目錄的 `scripts/`。
+   - **遠端模式**：以 `curl | bash` 執行、無本地 checkout 時，`git clone --depth 1` 到暫存目錄，結束時經 `trap ... EXIT` 自動清理。
+3. 嚴格依序執行模組；任一模組失敗立即中止並回傳非零退出碼：
+
+   | 順序 | 模組 | 作用 | 目標位置 |
+   |------|------|------|----------|
+   | 1 | `scripts/git.sh` | 套用 `config/git.conf` 全域設定與別名；解析身份／簽章／憑證（見「Git 設定來源」一節） | `~/.gitconfig` |
+   | 2 | `scripts/tmux.sh` | clone 或更新 `tmux-compass` | `~/.config/tmux/plugins/tmux-compass` |
+   | 3 | `scripts/vim.sh` | 相容包裝，轉呼 `scripts/tpm.sh`；clone 或更新 TPM | `~/.tmux/plugins/tpm` |
+
+流程可重複執行（idempotent）：既有的外掛 repo 會以 `git pull --ff-only` 更新；remote URL 與預期不符時直接失敗，不覆寫。
