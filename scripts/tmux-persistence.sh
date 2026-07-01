@@ -29,65 +29,9 @@ set -g @continuum-save-interval '5'
 ${BLOCK_END}
 BLOCK
 
-# Prefer the XDG config if the user already keeps tmux.conf there, otherwise the
-# legacy ~/.tmux.conf. When neither exists, target the legacy path.
-resolve_tmux_conf() {
-  local xdg="${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf"
-  local legacy="${HOME}/.tmux.conf"
-
-  if [[ -f "$xdg" ]]; then
-    printf '%s' "$xdg"
-  elif [[ -f "$legacy" ]]; then
-    printf '%s' "$legacy"
-  else
-    printf '%s' "$legacy"
-  fi
-}
-
-# Idempotently inject MANAGED_BLOCK: strip any existing marked region, then
-# insert a fresh copy just before the TPM `run '.../tpm/tpm'` line so the
-# @plugin declarations are registered before TPM initialises. If no TPM line is
-# found the block is appended and the user is warned.
-inject_managed_block() {
-  local conf_file="$1"
-  local tmp
-  local line
-  local inserted=0
-  local in_block=0
-  local saw_tpm=0
-
-  tmp="$(mktemp)" || die "failed to create temp file"
-
-  if [[ -f "$conf_file" ]]; then
-    while IFS= read -r line || [[ -n "$line" ]]; do
-      if [[ "$line" == "$BLOCK_BEGIN" ]]; then
-        in_block=1
-        continue
-      fi
-      if [[ "$in_block" -eq 1 ]]; then
-        [[ "$line" == "$BLOCK_END" ]] && in_block=0
-        continue
-      fi
-      if [[ "$inserted" -eq 0 && "$line" == *tpm/tpm* ]]; then
-        printf '%s\n' "$MANAGED_BLOCK" >> "$tmp"
-        inserted=1
-        saw_tpm=1
-      fi
-      printf '%s\n' "$line" >> "$tmp"
-    done < "$conf_file"
-  fi
-
-  if [[ "$inserted" -eq 0 ]]; then
-    printf '%s\n' "$MANAGED_BLOCK" >> "$tmp"
-    if [[ "$saw_tpm" -eq 0 ]]; then
-      log_warn "No TPM 'run .../tpm/tpm' line found in $conf_file; appended managed block at end."
-      log_warn "Ensure the bottom of tmux.conf has: run '~/.tmux/plugins/tpm/tpm' so the plugins load."
-    fi
-  fi
-
-  mv "$tmp" "$conf_file" || die "failed to write $conf_file"
-  log_info "Injected tmux persistence block into $conf_file"
-}
+# resolve_tmux_conf and inject_managed_block are shared helpers from common.sh.
+# The persistence @plugin declarations must be registered before TPM
+# initialises, so the block is anchored to the TPM `run '.../tpm/tpm'` line.
 
 # Write and enable a systemd user service that starts a detached tmux server on
 # boot; combined with @continuum-restore this restores the last saved session.
@@ -158,7 +102,11 @@ main() {
 
   local conf_file
   conf_file="$(resolve_tmux_conf)"
-  inject_managed_block "$conf_file"
+  if ! inject_managed_block "$conf_file" "$BLOCK_BEGIN" "$BLOCK_END" "$MANAGED_BLOCK" "tpm/tpm"; then
+    log_warn "No TPM 'run .../tpm/tpm' line found in $conf_file; appended managed block at end."
+    log_warn "Ensure the bottom of tmux.conf has: run '~/.tmux/plugins/tpm/tpm' so the plugins load."
+  fi
+  log_info "Injected tmux persistence block into $conf_file"
 
   setup_systemd_boot
 }

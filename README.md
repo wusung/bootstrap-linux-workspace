@@ -77,7 +77,7 @@ bash install.sh
    | 順序 | 模組 | 作用 | 目標位置 |
    |------|------|------|----------|
    | 1 | `scripts/git.sh` | 套用 `config/git.conf` 全域設定與別名；解析身份／簽章／憑證（見「Git 設定來源」一節） | `~/.gitconfig` |
-   | 2 | `scripts/tmux.sh` | clone 或更新 `wusung/tmux-compass`、`sainnhe/tmux-fzf`、`MaxGhenis/tmux-claude-code` | `~/.config/tmux/plugins/tmux-compass`、`~/.config/tmux/plugins/tmux-fzf`、`~/.config/tmux/plugins/tmux-claude-code` |
+   | 2 | `scripts/tmux.sh` | clone 或更新 `wusung/tmux-compass`、`sainnhe/tmux-fzf`、`MaxGhenis/tmux-claude-code`；注入 tmux plugins managed block（`run-shell` 載入 tmux-fzf／tmux-claude-code）至 tmux.conf | `~/.config/tmux/plugins/tmux-compass`、`~/.config/tmux/plugins/tmux-fzf`、`~/.config/tmux/plugins/tmux-claude-code`、tmux.conf |
    | 3 | `scripts/vim.sh` | 相容包裝，轉呼 `scripts/tpm.sh`；clone 或更新 TPM | `~/.tmux/plugins/tpm` |
    | 4 | `scripts/tmux-persistence.sh` | clone 或更新 `tmux-resurrect`／`tmux-continuum`；注入 tmux.conf managed block；寫入並啟用 systemd user service | `~/.tmux/plugins/tmux-resurrect`、`~/.tmux/plugins/tmux-continuum`、`~/.config/systemd/user/tmux.service` |
 

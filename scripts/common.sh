@@ -108,6 +108,73 @@ clone_or_update_repo() {
   git -C "$dest_dir" pull --ff-only || die "failed to update repository: $dest_dir"
 }
 
+# Prefer the XDG config if the user already keeps tmux.conf there, otherwise the
+# legacy ~/.tmux.conf. When neither exists, target the legacy path.
+resolve_tmux_conf() {
+  local xdg="${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf"
+  local legacy="${HOME}/.tmux.conf"
+
+  if [[ -f "$xdg" ]]; then
+    printf '%s' "$xdg"
+  elif [[ -f "$legacy" ]]; then
+    printf '%s' "$legacy"
+  else
+    printf '%s' "$legacy"
+  fi
+}
+
+# Idempotently inject a managed block into a config file, delimited by the given
+# begin/end markers. Any existing region between the markers is stripped first,
+# so repeated runs replace rather than duplicate. When anchor is non-empty and a
+# line containing it is found, the block is inserted immediately before that
+# line; otherwise the block is appended at the end of the file.
+#
+# Returns 0 when the block was inserted before the anchor, or when no anchor was
+# requested and the block was appended. Returns 1 when a non-empty anchor was
+# requested but not found (block appended) so callers can warn if they need to.
+inject_managed_block() {
+  local conf_file="${1:?config file is required}"
+  local begin_marker="${2:?begin marker is required}"
+  local end_marker="${3:?end marker is required}"
+  local block="${4?block content is required}"
+  local anchor="${5:-}"
+  local tmp
+  local line
+  local in_block=0
+  local inserted=0
+  local anchor_found=0
+
+  tmp="$(mktemp)" || die "failed to create temp file"
+
+  if [[ -f "$conf_file" ]]; then
+    while IFS= read -r line || [[ -n "$line" ]]; do
+      if [[ "$line" == "$begin_marker" ]]; then
+        in_block=1
+        continue
+      fi
+      if [[ "$in_block" -eq 1 ]]; then
+        [[ "$line" == "$end_marker" ]] && in_block=0
+        continue
+      fi
+      if [[ "$inserted" -eq 0 && -n "$anchor" && "$line" == *"$anchor"* ]]; then
+        printf '%s\n' "$block" >> "$tmp"
+        inserted=1
+        anchor_found=1
+      fi
+      printf '%s\n' "$line" >> "$tmp"
+    done < "$conf_file"
+  fi
+
+  if [[ "$inserted" -eq 0 ]]; then
+    printf '%s\n' "$block" >> "$tmp"
+  fi
+
+  mv "$tmp" "$conf_file" || die "failed to write $conf_file"
+
+  [[ -n "$anchor" && "$anchor_found" -eq 0 ]] && return 1
+  return 0
+}
+
 if [[ $__common_sh_restore_errexit -eq 1 ]]; then
   set -e
 else
