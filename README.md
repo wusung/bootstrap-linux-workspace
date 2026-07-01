@@ -2,7 +2,7 @@
 
 ## 專案用途
 
-此專案用來作為 Linux 工作環境 bootstrap repo，目標是在使用者執行一行安裝指令後，自動套用 Git 設定、安裝 `tmux-compass`、安裝 `tpm`。
+此專案用來作為 Linux 工作環境 bootstrap repo，目標是在使用者執行一行安裝指令後，自動套用 Git 設定、安裝 `tmux-compass`、安裝 `tpm`，並設定 tmux session 持久化與開機自動回復。
 
 ## Scope
 
@@ -10,6 +10,7 @@
 - 套用來自 `config/git.conf` 的 Git 設定
 - 安裝 `tmux-compass`
 - 安裝 `tpm`
+- 安裝 `tmux-resurrect`、`tmux-continuum`，並以 systemd user service 設定開機後自動回復 tmux session
 - 供遠端 `install.sh` 下載並執行
 
 ## Git 設定來源
@@ -39,6 +40,8 @@ GIT_USER_NAME="Wusung Peng" GIT_USER_EMAIL="you@example.com" bash scripts/git.sh
 - `curl`
 - 可連線至 GitHub
 - `gh`（選用；存在時用於設定 GitHub 憑證輔助）
+- `tmux`（選用；開機自動回復需要，缺少時 systemd 步驟降級為警告）
+- systemd user instance（選用；設定 `tmux.service` 開機啟動需要）
 
 ## One-Line Install
 
@@ -76,5 +79,31 @@ bash install.sh
    | 1 | `scripts/git.sh` | 套用 `config/git.conf` 全域設定與別名；解析身份／簽章／憑證（見「Git 設定來源」一節） | `~/.gitconfig` |
    | 2 | `scripts/tmux.sh` | clone 或更新 `tmux-compass` | `~/.config/tmux/plugins/tmux-compass` |
    | 3 | `scripts/vim.sh` | 相容包裝，轉呼 `scripts/tpm.sh`；clone 或更新 TPM | `~/.tmux/plugins/tpm` |
+   | 4 | `scripts/tmux-persistence.sh` | clone 或更新 `tmux-resurrect`／`tmux-continuum`；注入 tmux.conf managed block；寫入並啟用 systemd user service | `~/.tmux/plugins/tmux-resurrect`、`~/.tmux/plugins/tmux-continuum`、`~/.config/systemd/user/tmux.service` |
 
 流程可重複執行（idempotent）：既有的外掛 repo 會以 `git pull --ff-only` 更新；remote URL 與預期不符時直接失敗，不覆寫。
+
+## tmux Session 持久化與開機自動回復
+
+`scripts/tmux-persistence.sh` 負責讓 tmux session 在重開機後自動回復，設計細節見 `docs/tmux-resurrect-continuum/spec.md`。
+
+行為重點：
+
+- 直接 clone `tmux-resurrect`、`tmux-continuum` 到 `~/.tmux/plugins/`，與 TPM 載入路徑一致。
+- 在使用者 tmux.conf（優先 `~/.config/tmux/tmux.conf`，否則 `~/.tmux.conf`）注入一段 **marker 界定、冪等、可還原** 的 managed block：
+
+  ```tmux
+  # >>> bootstrap-linux-workspace: tmux persistence >>>
+  set -g @plugin 'tmux-plugins/tmux-resurrect'
+  set -g @plugin 'tmux-plugins/tmux-continuum'
+  set -g @continuum-restore 'on'
+  set -g @continuum-boot 'on'
+  set -g @continuum-save-interval '5'
+  # <<< bootstrap-linux-workspace: tmux persistence <<<
+  ```
+
+  此 block 插在 TPM `run '.../tpm/tpm'` 行之前;刪除整段 marker 區間即完全還原。
+- 寫入 `~/.config/systemd/user/tmux.service` 並 `systemctl --user enable`（不 start），搭配 `loginctl enable-linger`，使開機（未登入前）即起 tmux server 並由 continuum 還原上次 session。
+- **保守降級**：`tmux` 不存在或 systemd user instance 不可用（如 headless `curl | bash`）時，plugin 與 tmux.conf 設定仍完成，systemd 步驟改為輸出警告與後續手動指示，不中斷整體 bootstrap。
+
+> 需求前提：系統已安裝 `tmux`（本 repo 不負責安裝 `tmux`）。managed block 依賴 tmux.conf 底部已有 `run '~/.tmux/plugins/tpm/tpm'` 才能載入 plugin。
