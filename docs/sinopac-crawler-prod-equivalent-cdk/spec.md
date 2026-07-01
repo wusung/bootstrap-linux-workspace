@@ -415,8 +415,8 @@ infra/
 
 正式環境元件與 CDK stack 歸屬，進一步整理於：
 
-- `docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-resource-matrix.md`
-- `docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-parameters.md`
+- `docs/sinopac-crawler-prod-equivalent-cdk/resource-matrix.md`
+- `docs/sinopac-crawler-prod-equivalent-cdk/parameters.md`
 
 後續實作與現場補件，均以這兩份文件作為盤點基線。
 

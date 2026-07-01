@@ -14,21 +14,21 @@
 
 ### Existing Files
 
-- `docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-design.md`
+- `docs/sinopac-crawler-prod-equivalent-cdk/spec.md`
   - 已確認的設計規格來源
 
 ### Files To Create
 
-- `docs/superpowers/plans/2026-04-30-sinopac-crawler-prod-equivalent-cdk-plan.md`
+- `docs/sinopac-crawler-prod-equivalent-cdk/plan.md`
   - 本 implementation plan
-- `docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-resource-matrix.md`
+- `docs/sinopac-crawler-prod-equivalent-cdk/resource-matrix.md`
   - PDF 元件與 CDK stack / AWS 資源的對照表
-- `docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-parameters.md`
+- `docs/sinopac-crawler-prod-equivalent-cdk/parameters.md`
   - 參數、命名、secret 與現場補件清單整理
 
 ### Files To Modify
 
-- `docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-design.md`
+- `docs/sinopac-crawler-prod-equivalent-cdk/spec.md`
   - 視需要補上 cross-stack reference、部署順序、規劃修正
 
 ## CDK Project Bootstrap Tasks
@@ -72,8 +72,8 @@
 ## Task 1: 建立資源對照矩陣文件
 
 **Files:**
-- Create: `docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-resource-matrix.md`
-- Modify: `docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-design.md`
+- Create: `docs/sinopac-crawler-prod-equivalent-cdk/resource-matrix.md`
+- Modify: `docs/sinopac-crawler-prod-equivalent-cdk/spec.md`
 - Test: 無自動化測試；使用 `rg` 與人工審閱驗證欄位完整性
 
 - [ ] **Step 1: 建立對照矩陣文件骨架**
@@ -119,7 +119,7 @@
 Run:
 
 ```bash
-rg -n "^\| .* \| .* \| .* \| .* \| .* \| .* \| .* \| .* \|$" docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-resource-matrix.md
+rg -n "^\| .* \| .* \| .* \| .* \| .* \| .* \| .* \| .* \|$" docs/sinopac-crawler-prod-equivalent-cdk/resource-matrix.md
 ```
 
 Expected:
@@ -129,14 +129,14 @@ Expected:
 
 - [ ] **Step 4: 補充設計文件中的矩陣引用段落**
 
-在 `docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-design.md` 追加：
+在 `docs/sinopac-crawler-prod-equivalent-cdk/spec.md` 追加：
 
 ```md
 ## 資源盤點依據
 
 正式環境元件與 CDK stack 歸屬，進一步整理於：
 
-- `docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-resource-matrix.md`
+- `docs/sinopac-crawler-prod-equivalent-cdk/resource-matrix.md`
 
 後續實作與現場補件，均以該矩陣為盤點基線。
 ```
@@ -144,15 +144,15 @@ Expected:
 - [ ] **Step 5: Commit**
 
 ```bash
-git add docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-resource-matrix.md docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-design.md
+git add docs/sinopac-crawler-prod-equivalent-cdk/resource-matrix.md docs/sinopac-crawler-prod-equivalent-cdk/spec.md
 git commit -m "docs: add prod-equivalent resource matrix"
 ```
 
 ## Task 2: 建立參數與命名規格文件
 
 **Files:**
-- Create: `docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-parameters.md`
-- Modify: `docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-design.md`
+- Create: `docs/sinopac-crawler-prod-equivalent-cdk/parameters.md`
+- Modify: `docs/sinopac-crawler-prod-equivalent-cdk/spec.md`
 - Test: 無自動化測試；用 `rg` 驗證章節與參數 key 完整性
 
 - [ ] **Step 1: 建立參數規格文件骨架**
@@ -260,7 +260,7 @@ Examples:
 Run:
 
 ```bash
-rg -n "environmentName|awsAccountId|awsRegion|projectName|vpcCidr|domainName|ec2InstanceType|rdsInstanceClass|crawlerImageTag" docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-parameters.md
+rg -n "environmentName|awsAccountId|awsRegion|projectName|vpcCidr|domainName|ec2InstanceType|rdsInstanceClass|crawlerImageTag" docs/sinopac-crawler-prod-equivalent-cdk/parameters.md
 ```
 
 Expected:
@@ -271,19 +271,19 @@ Expected:
 - [ ] **Step 6: Commit**
 
 ```bash
-git add docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-parameters.md docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-design.md
+git add docs/sinopac-crawler-prod-equivalent-cdk/parameters.md docs/sinopac-crawler-prod-equivalent-cdk/spec.md
 git commit -m "docs: define prod-equivalent cdk parameters"
 ```
 
 ## Task 3: 補完 CDK 實作邊界與 cross-stack 規劃
 
 **Files:**
-- Modify: `docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-design.md`
+- Modify: `docs/sinopac-crawler-prod-equivalent-cdk/spec.md`
 - Test: 使用 `rg` 檢查 stack 名稱與 cross-stack 關鍵字是否存在
 
 - [ ] **Step 1: 在設計文件加入 cross-stack reference 區段**
 
-在 `docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-design.md` 追加：
+在 `docs/sinopac-crawler-prod-equivalent-cdk/spec.md` 追加：
 
 ```md
 ## Cross-Stack Reference Strategy
@@ -362,7 +362,7 @@ CDK 專案不負責：
 Run:
 
 ```bash
-rg -n "Cross-Stack Reference Strategy|Deployment Order|IaC Boundary And Handoff|ConfigStack|NetworkStack|ComputeCrawlerStack" docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-design.md
+rg -n "Cross-Stack Reference Strategy|Deployment Order|IaC Boundary And Handoff|ConfigStack|NetworkStack|ComputeCrawlerStack" docs/sinopac-crawler-prod-equivalent-cdk/spec.md
 ```
 
 Expected:
@@ -373,14 +373,14 @@ Expected:
 - [ ] **Step 5: Commit**
 
 ```bash
-git add docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-design.md
+git add docs/sinopac-crawler-prod-equivalent-cdk/spec.md
 git commit -m "docs: refine cdk stack boundaries and deployment order"
 ```
 
 ## Task 4: 建立 CDK 專案初始化與實作順序計畫
 
 **Files:**
-- Modify: `docs/superpowers/plans/2026-04-30-sinopac-crawler-prod-equivalent-cdk-plan.md`
+- Modify: `docs/sinopac-crawler-prod-equivalent-cdk/plan.md`
 - Test: 以人工審閱確認每個 stack 都有對應初始化與實作順序
 
 - [ ] **Step 1: 補充 CDK app 初始化任務清單**
@@ -442,17 +442,17 @@ git commit -m "docs: refine cdk stack boundaries and deployment order"
 - [ ] **Step 4: Commit**
 
 ```bash
-git add docs/superpowers/plans/2026-04-30-sinopac-crawler-prod-equivalent-cdk-plan.md
+git add docs/sinopac-crawler-prod-equivalent-cdk/plan.md
 git commit -m "docs: expand cdk implementation sequence"
 ```
 
 ## Task 5: Plan Self-Review
 
 **Files:**
-- Modify: `docs/superpowers/plans/2026-04-30-sinopac-crawler-prod-equivalent-cdk-plan.md`
-- Modify: `docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-design.md`
-- Modify: `docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-resource-matrix.md`
-- Modify: `docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-parameters.md`
+- Modify: `docs/sinopac-crawler-prod-equivalent-cdk/plan.md`
+- Modify: `docs/sinopac-crawler-prod-equivalent-cdk/spec.md`
+- Modify: `docs/sinopac-crawler-prod-equivalent-cdk/resource-matrix.md`
+- Modify: `docs/sinopac-crawler-prod-equivalent-cdk/parameters.md`
 - Test: 使用 `rg` 搜尋 placeholder 與關鍵章節
 
 - [ ] **Step 1: 檢查 spec coverage**
@@ -460,7 +460,7 @@ git commit -m "docs: expand cdk implementation sequence"
 Run:
 
 ```bash
-rg -n "目標|正式環境整理版架構|CDK 專案切分|參數化策略|命名策略|不納入 IaC 的項目|待現場補件清單" docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-design.md
+rg -n "目標|正式環境整理版架構|CDK 專案切分|參數化策略|命名策略|不納入 IaC 的項目|待現場補件清單" docs/sinopac-crawler-prod-equivalent-cdk/spec.md
 ```
 
 Expected:
@@ -474,7 +474,7 @@ Run:
 
 ```bash
 pattern='TB''D|TO''DO|implement ''later|fill ''in ''details|appropriate ''error ''handling|similar ''to ''Task'
-rg -n "$pattern" docs/superpowers/plans/2026-04-30-sinopac-crawler-prod-equivalent-cdk-plan.md docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-design.md docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-resource-matrix.md docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-parameters.md
+rg -n "$pattern" docs/sinopac-crawler-prod-equivalent-cdk/plan.md docs/sinopac-crawler-prod-equivalent-cdk/spec.md docs/sinopac-crawler-prod-equivalent-cdk/resource-matrix.md docs/sinopac-crawler-prod-equivalent-cdk/parameters.md
 ```
 
 Expected:
@@ -486,7 +486,7 @@ Expected:
 Run:
 
 ```bash
-rg -n "NetworkStack|EdgeStack|DataStack|ComputeAppStack|ComputeCrawlerStack|ObservabilityStack|ConfigStack" docs/superpowers/plans/2026-04-30-sinopac-crawler-prod-equivalent-cdk-plan.md docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-design.md
+rg -n "NetworkStack|EdgeStack|DataStack|ComputeAppStack|ComputeCrawlerStack|ObservabilityStack|ConfigStack" docs/sinopac-crawler-prod-equivalent-cdk/plan.md docs/sinopac-crawler-prod-equivalent-cdk/spec.md
 ```
 
 Expected:
@@ -496,6 +496,6 @@ Expected:
 - [ ] **Step 4: Commit**
 
 ```bash
-git add docs/superpowers/plans/2026-04-30-sinopac-crawler-prod-equivalent-cdk-plan.md docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-design.md docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-resource-matrix.md docs/superpowers/specs/2026-04-30-sinopac-crawler-prod-equivalent-cdk-parameters.md
+git add docs/sinopac-crawler-prod-equivalent-cdk/plan.md docs/sinopac-crawler-prod-equivalent-cdk/spec.md docs/sinopac-crawler-prod-equivalent-cdk/resource-matrix.md docs/sinopac-crawler-prod-equivalent-cdk/parameters.md
 git commit -m "docs: finalize prod-equivalent cdk implementation plan"
 ```
