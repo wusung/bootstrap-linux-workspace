@@ -14,7 +14,7 @@ set -euo pipefail
 
 REPO_URL="https://github.com/wusung/bootstrap-linux-workspace.git"
 REPO_BRANCH="main"
-MODULES=(git.sh tmux.sh vim.sh)
+MODULES=(git.sh tmux.sh vim.sh tmux-persistence.sh)
 
 # Self-contained helpers: install.sh must stand alone before the repo (and thus
 # scripts/common.sh) is available.
